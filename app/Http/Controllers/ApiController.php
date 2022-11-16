@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\User;
 
 class ApiController extends Controller
 {
@@ -13,6 +14,9 @@ class ApiController extends Controller
      */
     public function autentic()
     {
+        // foreach (User::all() as $flight) {
+        //     echo $flight->nome;
+        // }
         return response()->json('login',200);
     }
 

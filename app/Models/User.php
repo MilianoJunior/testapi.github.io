@@ -13,6 +13,14 @@ class User extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable;
 
     /**
+     * The table associated with the model.
+     *
+     * @var string
+     */
+    protected $table = 'users';
+    const CREATED_AT = 'creation_date';
+    const UPDATED_AT = 'updated_date';
+    /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
