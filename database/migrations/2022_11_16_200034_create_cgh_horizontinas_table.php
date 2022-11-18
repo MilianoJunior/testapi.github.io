@@ -15,7 +15,6 @@ return new class extends Migration
     {
         Schema::create('cgh_horizontinas', function (Blueprint $table) {
             $table->id();
-            $table->id();
             $table->timestamps();
         });
     }

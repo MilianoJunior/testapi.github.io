@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('senha');
             $table->string('imagem');
             $table->string('usina');
+            $table->boolean('status');
             $table->timestamp('ultimo_acesso')->nullable();
             $table->integer('numero_acessos');
             $table->integer('acessos_consecutivos');

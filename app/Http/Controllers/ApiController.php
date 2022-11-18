@@ -7,18 +7,6 @@ use App\Models\User;
 
 class ApiController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function autentic()
-    {
-        // foreach (User::all() as $flight) {
-        //     echo $flight->nome;
-        // }
-        return response()->json('login',200);
-    }
 
     /**
      * Show the form for creating a new resource.

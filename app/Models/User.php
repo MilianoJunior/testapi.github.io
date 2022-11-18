@@ -18,8 +18,8 @@ class User extends Authenticatable
      * @var string
      */
     protected $table = 'users';
-    const CREATED_AT = 'creation_date';
-    const UPDATED_AT = 'updated_date';
+    const CREATED_AT = 'created_at';
+    const UPDATED_AT = 'updated_at';
     /**
      * The attributes that are mass assignable.
      *
@@ -33,6 +33,7 @@ class User extends Authenticatable
         'senha',
         'imagem',
         'usina',
+        'status',
         'ultimo_acesso',
         'numero_acessos',
         'acessos_consecutivos'
@@ -45,14 +46,5 @@ class User extends Authenticatable
      */
     protected $hidden = [
         'remember_token',
-    ];
-
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
-        'email_verified_at' => 'datetime',
     ];
 }
