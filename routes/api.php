@@ -14,7 +14,22 @@ use App\Http\Controllers\UserController;
 Route::post('/autentic', [UserController::class, 'autentic']);
 
 
+/*
+|--------------------------------------------------------------------------
+| Proteção das rotas
+|--------------------------------------------------------------------------
+*/
 
+Route::group(['middleware' => ['auth:sanctum']], function(){
+    Route::post('/logout', [UserController::class, 'logout']);
+    Route::get('/getusers', [UserController::class, 'get_users']);
+    Route::post('/getuser', [UserController::class, 'get_user']);
+    Route::post('/createuser', [UserController::class, 'create_user']);
+    Route::post('/resetpassworduser', [UserController::class, 'reset_password_user']);
+    Route::post('/updateuser', [UserController::class, 'update_user']);
+    Route::post('/deleteuser', [UserController::class, 'delete_user']);
+    Route::post('/logged', [UserController::class, 'users_logged']);
+});
 // Route::post('/logados', [UserController::class, 'users_logged']);
 // Route::post('/logados', [UserController::class, 'users_logged']);
 
@@ -42,25 +57,7 @@ Route::post('/autentic', [UserController::class, 'autentic']);
 // Route::get('/update', [ApiController::class, 'update']);
 // Route::get('/destroy', [ApiController::class, 'destroy']);
 
-/*
-|--------------------------------------------------------------------------
-| Proteção das rotas
-|--------------------------------------------------------------------------
-*/
 
-// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-//     Route::post('/getuser', [UserController::class, 'get_user']);
-// });
-Route::group(['middleware' => ['auth:sanctum']], function(){
-    Route::post('/logout', [UserController::class, 'logout']);
-    Route::get('/getusers', [UserController::class, 'get_users']);
-    Route::post('/getuser', [UserController::class, 'get_user']);
-    Route::post('/createuser', [UserController::class, 'create_user']);
-    Route::post('/resetpassworduser', [UserController::class, 'reset_password_user']);
-    Route::post('/updateuser', [UserController::class, 'update_user']);
-    Route::post('/deleteuser', [UserController::class, 'delete_user']);
-    Route::post('/logged', [UserController::class, 'users_logged']);
-});
 
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //     return $request->user();

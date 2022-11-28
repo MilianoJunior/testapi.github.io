@@ -24,8 +24,8 @@ return new class extends Migration
             $table->string('usina');
             $table->boolean('status');
             $table->timestamp('ultimo_acesso')->nullable();
-            $table->integer('numero_acessos');
-            $table->integer('acessos_consecutivos');
+            $table->integer('numero_acessos')->default(0);
+            $table->integer('acessos_consecutivos')->default(0);
             $table->rememberToken();
             $table->timestamps();
         });
