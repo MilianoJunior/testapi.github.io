@@ -64,16 +64,22 @@ class UserController extends Controller
     public function users_logged(Request $request)
     {
         // status: 1 ativado, 2 bloqueado, 3 logado
-        $users = User::all();
-        $data = [];
-        foreach($users as $user){
-            if($user->status == 3){
-                $data[$user->nome] = 'logado';
+        try{
+            $users = User::all();
+            $data = [];
+            foreach($users as $user){
+                if($user->status == 3){
+                    $data[$user->nome] = 'logado';
+                }
             }
+            return $this->resposta_padrao(false,
+                                          $this->response_code(1),
+                                          $data);
+        }catch (Exception $e) {
+            return $this->resposta_padrao(true,
+                                          $this->response_code(11),
+                                          $e);
         }
-        return $this->resposta_padrao(false,
-                                      $this->response_code(1),
-                                      $data);
     }
     /**
      * Display a listing all users.
@@ -82,12 +88,20 @@ class UserController extends Controller
      */
     public function get_users()
     {
-        $users = User::all();
-        $data = [];
-        foreach($users as $user){
-            $data[$user->nome] = true;
+        try{
+            $users = User::all();
+            $data = [];
+            foreach($users as $user){
+                $data[$user->nome] = true;
+            }
+            return $this->resposta_padrao(false,
+                                          $this->response_code(1),
+                                          $data);
+        }catch (Exception $e) {
+            return $this->resposta_padrao(true,
+                                          $this->response_code(11),
+                                          $e);
         }
-        return $this->resposta_padrao('Requisição com sucesso', false, $data, 200);
     }
     /**
      * get user from id.
@@ -102,11 +116,21 @@ class UserController extends Controller
                                           $this->response_code(10),
                                           $val);
         }
-        $user = User::findOrFail($request->id);
-        if (!$user){
-            return $this->resposta_padrao('usuário não cadastrado', false, $user, 200);
+        try{
+            $user = User::findOrFail($request->id);
+            if (!$user){
+                return $this->resposta_padrao(true,
+                                              $this->response_code(6),
+                                              null);
+            }
+            return $this->resposta_padrao(false,
+                                          $this->response_code(1),
+                                          $user);
+        }catch (Exception $e) {
+            return $this->resposta_padrao(true,
+                                          $this->response_code(11),
+                                          $e);
         }
-        return $this->resposta_padrao('Requisição com sucesso', false, $user, 200);
     }
     /**
      * get user from id.
@@ -115,21 +139,21 @@ class UserController extends Controller
      */
     public function create_user(Request $request)
     {
-        try{
-            $val = $this->validator_inputs($request, ['nome' => 'required',
-                                                      'telefone' => 'required',
-                                                      'nascimento' => 'required',
-                                                      'email' => 'required|email',
-                                                      'senha' => 'required',
-                                                      'imagem' => 'required',
-                                                      'usina' => 'required',
-                                                      'status' => 'required'],
-                                                      'todas as entradas devem ser preenchidas.');
-            if(!$val['status']){
+        $val = $this->validator_inputs($request, ['nome' => 'required',
+                                                  'telefone' => 'required',
+                                                  'nascimento' => 'required',
+                                                  'email' => 'required|email',
+                                                  'senha' => 'required',
+                                                  'imagem' => 'required',
+                                                  'usina' => 'required',
+                                                  'status' => 'required'],
+                                                  'todas as entradas devem ser preenchidas.');
+        if(!$val['status']){
                 return $this->resposta_padrao(true,
-                                          $this->response_code(10),
-                                          $val);
+                                             $this->response_code(10),
+                                             $val);
             }
+        try{
             $new_user = new User;
             $new_user->nome = $request->nome;
             $new_user->telefone = $request->telefone;
@@ -144,9 +168,13 @@ class UserController extends Controller
             $new_user->acessos_consecutivos = 1;
             $new_user->remember_token =  Str::random(10);
             $new_user->save();
-            return $this->resposta_padrao('usuário criado com sucesso', false, $new_user, 201);
+            return $this->resposta_padrao(false,
+                                          $this->response_code(2),
+                                          $new_user);
         }catch (Exception $e) {
-            return $this->resposta_padrao('erro com o banco de dados', true, $e, 400);
+            return $this->resposta_padrao(true,
+                                          $this->response_code(11),
+                                          $e);
         }
     }
     /**
@@ -156,20 +184,29 @@ class UserController extends Controller
      */
     public function reset_password_user(Request $request)
     {
-        $val = $this->validator_inputs($request, ['id' => 'required','todas as entradas devem ser preenchidas.']);
+        $val = $this->validator_inputs($request, ['senha' => 'required','todas as entradas devem ser preenchidas.']);
         if(!$val['status']){
             return $this->resposta_padrao(true,
                                           $this->response_code(10),
                                           $val);
         }
-        $user = User::findOrFail($request->id);
-        if (!$user){
-            return $this->resposta_padrao('usuário não está cadastrado', true, $val, 400);
+        try{
+            $user = User::findOrFail($request->id);
+            if (!$user){
+                return $this->resposta_padrao(true,
+                                              $this->response_code(6),
+                                              null);
+            }
             $user->senha = Hash::make($request->senha);
             $user->save();
-            return $this->resposta_padrao('senha alterada com sucesso', true, $user, 200);
+            return $this->resposta_padrao(false,
+                                          $this->response_code(2),
+                                          $user);
+        }catch (Exception $e) {
+            return $this->resposta_padrao(true,
+                                          $this->response_code(11),
+                                          $e);
         }
-        return $this->resposta_padrao('usuário não está cadastrado', true, null, 200);
     }
     /**
      * Logout User.
@@ -184,20 +221,28 @@ class UserController extends Controller
                                           $this->response_code(10),
                                           $val);
         }
-        $user = User::where('email', $request->email)->first();
-        if(!$user){
-            return response()->json(['msg'=>'Erro do sistema, reinicie o app!',
-                                     'user'=>$user->nome],401);
+        try{
+            $user = User::where('email', $request->email)->first();
+            if(!$user){
+                return $this->resposta_padrao(true,
+                                            $this->response_code(6),
+                                            null);
+            }
+            if($user->id != auth()->user()->id){
+                return $this->resposta_padrao(true,
+                                              $this->response_code(4),
+                                              null);
+            }
+            $user->tokens()->where('tokenable_id', $request->id)->delete();
+            $user->update(['status' => 1]);
+            return $this->resposta_padrao(false,
+                                          $this->response_code(1),
+                                          null);
+        }catch (Exception $e) {
+            return $this->resposta_padrao(true,
+                                            $this->response_code(11),
+                                            $e);
         }
-        if($user->id != auth()->user()->id){
-            return response()->json(['msg'=>'Erro de token, reinicie o app!',
-                                     'user'=>$user->nome],401);
-        }
-        $user->tokens()->where('tokenable_id', $request->id)->delete();
-        $user->update(['status' => 1]);
-        return response()->json(['messagem'=>'Logout com sucesso',
-                                 'token' => auth()->user(),
-                                 'user'=>$user->nome],200);
     }
     /**
      * get user from id.
@@ -213,14 +258,26 @@ class UserController extends Controller
                                           $this->response_code(10),
                                           $val);
         }
-        $user = User::findOrFail($request->id);
-        if ($user){
-            $request->senha = Hash::make($request->senha);
+        try{
+            $user = User::findOrFail($request->id);
+            if (!$user){
+                return $this->resposta_padrao(true,
+                                            $this->response_code(6),
+                                            null);
+            }
+            if($request->senha){
+                $request->senha = Hash::make($request->senha);
+            }
             $user->update($request->all());
             $user->save();
-            return response()->json('usuário alterado com sucesso',200);
+            return $this->resposta_padrao(false,
+                                          $this->response_code(1),
+                                          $user);
+        }catch (Exception $e) {
+            return $this->resposta_padrao(true,
+                                          $this->response_code(11),
+                                          $e);
         }
-        return response()->json(['id'=>'usuário não está cadastrado'],200);
     }
     /**
      * bloquear user from id.
@@ -230,20 +287,23 @@ class UserController extends Controller
 
     public function bloquear_user($id)
     {
-        $val = $this->validator_inputs($request, ['id' => 'required','todas as entradas devem ser preenchidas.']);
-        if(!$val['status']){
-            return $this->resposta_padrao(true,
-                                          $this->response_code(10),
-                                          $val);
-        }
-        $user = User::findOrFail($id);
-        if ($user){
+        try{
+            $user = User::findOrFail($id);
+            if (!$user){
+                return $this->resposta_padrao(true,
+                                              $this->response_code(6),
+                                              null);
+            }
             $user->update(['status'=>2]);
             $user->save();
-            return response()->json('usuário bloqueado com sucesso',200);
+            return $this->resposta_padrao(false,
+                                          $this->response_code(1),
+                                          $user);
+        }catch (Exception $e) {
+            return $this->resposta_padrao(true,
+                                          $this->response_code(11),
+                                          $e);
         }
-        logout($user);
-        return response()->json(['id'=>'usuário não está cadastrado'],200);
     }
     /**
      * desbloquear user from id.
@@ -253,19 +313,23 @@ class UserController extends Controller
 
     public function desbloquear_user($id)
     {
-        $val = $this->validator_inputs($request, ['id' => 'required','todas as entradas devem ser preenchidas.']);
-        if(!$val['status']){
-            return $this->resposta_padrao(true,
-                                          $this->response_code(10),
-                                          $val);
-        }
-        $user = User::findOrFail($request->id);
-        if ($user){
+        try{
+            $user = User::findOrFail($id);
+            if (!$user){
+                return $this->resposta_padrao(true,
+                                              $this->response_code(6),
+                                              null);
+            }
             $user->update(['status'=>1]);
             $user->save();
-            return response()->json('usuário desbloqueado com sucesso',200);
+            return $this->resposta_padrao(false,
+                                          $this->response_code(1),
+                                          $user);
+        }catch (Exception $e) {
+            return $this->resposta_padrao(true,
+                                          $this->response_code(11),
+                                          $e);
         }
-        return response()->json(['id'=>'usuário não está cadastrado'],200);
     }
     /**
      * register access api.
@@ -274,14 +338,6 @@ class UserController extends Controller
      */
     public function register_acess($user, $state)
     {
-        $val = $this->validator_inputs($request, ['user' => 'required',
-                                                  'state'=> 'required',
-                                                  'todas as entradas devem ser preenchidas.']);
-        if(!$val['status']){
-            return $this->resposta_padrao(true,
-                                          $this->response_code(10),
-                                          $val);
-        }
         if ($state){
             $numero_acesso = $user->numero_de_acessos + 1;
             $user->update(['acessos_consecutivos' => 0]);
@@ -342,7 +398,7 @@ class UserController extends Controller
                                 "status_code"=> 401,
                             ],
                         4 => [
-                                "message"=>"A chave da API está correta, porém a conta foi desativada, entre em contato com a EngeSEP.",
+                                "message"=>"A conta foi desativada, entre em contato com a EngeSEP.",
                                 "status_code"=> 402,
                              ],
                         5 => [
