@@ -117,15 +117,15 @@ class UserController extends Controller
                                           $val);
         }
         try{
-            $user = User::findOrFail($request->id);
+            $user = User::find($request->id);
             if (!$user){
                 return $this->resposta_padrao(true,
-                                              $this->response_code(6),
-                                              null);
+                                                $this->response_code(6),
+                                                null);
             }
             return $this->resposta_padrao(false,
-                                          $this->response_code(1),
-                                          $user);
+                                            $this->response_code(1),
+                                            $user);
         }catch (Exception $e) {
             return $this->resposta_padrao(true,
                                           $this->response_code(11),
@@ -149,10 +149,15 @@ class UserController extends Controller
                                                   'status' => 'required'],
                                                   'todas as entradas devem ser preenchidas.');
         if(!$val['status']){
-                return $this->resposta_padrao(true,
-                                             $this->response_code(10),
-                                             $val);
-            }
+            return $this->resposta_padrao(true,
+                                          $this->response_code(10),
+                                          $val);
+        }
+        if (User::where('email', $request->email)->first()){
+            return $this->resposta_padrao(true,
+                                          $this->response_code(8),
+                                          $val);
+        }
         try{
             $new_user = new User;
             $new_user->nome = $request->nome;
@@ -184,7 +189,8 @@ class UserController extends Controller
      */
     public function reset_password_user(Request $request)
     {
-        $val = $this->validator_inputs($request, ['senha' => 'required','todas as entradas devem ser preenchidas.']);
+        $val = $this->validator_inputs($request, ['senha' => 'required',
+                                                  'id'=>'required'],'todas as entradas devem ser preenchidas.');
         if(!$val['status']){
             return $this->resposta_padrao(true,
                                           $this->response_code(10),
@@ -215,7 +221,7 @@ class UserController extends Controller
      */
     public function logout(Request $request)
     {
-        $val = $this->validator_inputs($request, ['email' => 'required','todas as entradas devem ser preenchidas.']);
+        $val = $this->validator_inputs($request, ['email' => 'required'],'todas as entradas devem ser preenchidas.');
         if(!$val['status']){
             return $this->resposta_padrao(true,
                                           $this->response_code(10),
@@ -224,6 +230,7 @@ class UserController extends Controller
         try{
             $user = User::where('email', $request->email)->first();
             if(!$user){
+                return response()->json('email não existe',404);
                 return $this->resposta_padrao(true,
                                             $this->response_code(6),
                                             null);
@@ -233,7 +240,7 @@ class UserController extends Controller
                                               $this->response_code(4),
                                               null);
             }
-            $user->tokens()->where('tokenable_id', $request->id)->delete();
+            $user->tokens()->where('tokenable_id', $user->id)->delete();
             $user->update(['status' => 1]);
             return $this->resposta_padrao(false,
                                           $this->response_code(1),
@@ -259,7 +266,7 @@ class UserController extends Controller
                                           $val);
         }
         try{
-            $user = User::findOrFail($request->id);
+            $user = User::find($request->id);
             if (!$user){
                 return $this->resposta_padrao(true,
                                             $this->response_code(6),
@@ -314,7 +321,7 @@ class UserController extends Controller
     public function desbloquear_user($id)
     {
         try{
-            $user = User::findOrFail($id);
+            $user = User::find($id);
             if (!$user){
                 return $this->resposta_padrao(true,
                                               $this->response_code(6),
@@ -414,7 +421,7 @@ class UserController extends Controller
                                 "status_code"=> 406,
                              ],
                         8 => [
-                                "message"=>"A requisição foi recebida com sucesso, porém contém parâmetros inválidos.",
+                                "message"=>"A requisição foi recebida com sucesso, porém o e-mail está em uso.",
                                 "status_code"=> 422,
                              ],
                         9 => [
