@@ -36,7 +36,7 @@ class User extends Authenticatable
         'usina',
         'status',
         'ultimo_acesso',
-        'numero_de_acessos',
+        'numero_acessos',
         'acessos_consecutivos'
     ];
 

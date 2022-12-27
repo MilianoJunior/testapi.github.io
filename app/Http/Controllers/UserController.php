@@ -24,6 +24,7 @@ class UserController extends Controller
      */
     public function autentic(Request $request)
     {
+        // return response()->json('oi',200);
         $val = $this->validator_inputs($request, ['email' => 'required|email',
                                                   'senha' => 'required'],
                                                   'todas as entradas devem ser preenchidas.');
@@ -117,7 +118,7 @@ class UserController extends Controller
                                           $val);
         }
         try{
-            $user = User::find($request->id);
+            $user = $request->user();
             if (!$user){
                 return $this->resposta_padrao(true,
                                                 $this->response_code(6),
@@ -169,7 +170,7 @@ class UserController extends Controller
             $new_user->usina = $request->usina;
             $new_user->status = $request->status;
             $new_user->ultimo_acesso = date('Y-m-d H:i:s');
-            $new_user->numero_de_acessos = 1;
+            $new_user->numero_acessos = 1;
             $new_user->acessos_consecutivos = 1;
             $new_user->remember_token =  Str::random(10);
             $new_user->save();
@@ -197,7 +198,7 @@ class UserController extends Controller
                                           $val);
         }
         try{
-            $user = User::findOrFail($request->id);
+            $user = $request->user();
             if (!$user){
                 return $this->resposta_padrao(true,
                                               $this->response_code(6),
@@ -228,7 +229,8 @@ class UserController extends Controller
                                           $val);
         }
         try{
-            $user = User::where('email', $request->email)->first();
+            // $user = User::where('email', $request->email)->first();
+            $user = $request->user();
             if(!$user){
                 return response()->json('email não existe',404);
                 return $this->resposta_padrao(true,
@@ -266,7 +268,8 @@ class UserController extends Controller
                                           $val);
         }
         try{
-            $user = User::find($request->id);
+            // $user = User::find($request->id);
+            $user = $request->user();
             if (!$user){
                 return $this->resposta_padrao(true,
                                             $this->response_code(6),
